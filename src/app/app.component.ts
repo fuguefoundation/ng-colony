@@ -1,18 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { providers, Wallet } from 'ethers';
-import { TrufflepigLoader } from '@colony/colony-js-contract-loader-http';
 import { MatSnackBar } from '@angular/material';
 
-// import { EthersAdapter } from '@colony/colony-js-adapter-ethers';
-// import { ColonyNetworkClient } from '@colony/colony-js-client';
-
-// Import the prerequisites
-// const { providers, Wallet } = require('ethers');
-const { default: EthersAdapter } = require('@colony/colony-js-adapter-ethers');
-// const { TrufflepigLoader } = require('@colony/colony-js-contract-loader-http');
-const { default: ColonyNetworkClient } = require('@colony/colony-js-client');
-// Import the Extended Colony Protocol
-const ecp = require('../helpers/ecp');
+// Module Imports
+const connectNetwork = require('../examples/connectNetwork');
+const createToken = require('../examples/createToken');
+const createColony = require('../examples/createColony');
+const getColonyClient = require('../examples/getColonyClient');
+const addDomain = require('../examples/addDomain');
+const createTask = require('../examples/createTask');
 
 @Component({
   selector: 'app-root',
@@ -21,13 +16,34 @@ const ecp = require('../helpers/ecp');
 })
 export class AppComponent implements OnInit {
 
-  colonyClient: any;
+  // State
+  state = {
+    networkClient: [],    // networkClient (per account)
+    colonyClient: [],     // colonyClient (per account)
+    tokenAddress: '',
+    colony: {address: '', id: null},
+    domain: {id: null, parentSkillId: null, potId: null},
+    task: {
+      completionDate: null,
+      deliverableHash: null,
+      domainId: null,
+      dueDate: {},
+      id: null,
+      payoutsWeCannotMake: null,
+      potId: null,
+      skillId: null,
+      specificationHash: '',
+      status: ''
+    }
+  };
 
   model = {
+    accountAddr: '',
     networkAddr: '',
     tokenAddr: '',
     colonyId: '',
-    colonyAddr: ''
+    colonyAddr: '',
+    domainId: null
   };
 
   task = {
@@ -59,83 +75,42 @@ export class AppComponent implements OnInit {
     this.matSnackBar.open(status, null, {duration: 3000});
   }
 
-  // Create an async function
+  // Executed OnInit
   async example() {
 
-    // Create an instance of TrufflepigLoader
-    const loader = new TrufflepigLoader();
-
-    // Create an instance of JsonRPCProvider using the url of our test network
-    const provider = new providers.JsonRpcProvider('http://localhost:8545/');
-
-    // Get the private key from the first account
-    const { privateKey } = await loader.getAccount(0);
-
-    // Create an instance of Wallet using the private key and provider
-    const wallet = new Wallet(privateKey, provider);
-
-    // Create an instance of EthersAdapter
-    const adapter = new EthersAdapter({
-      loader,
-      provider,
-      wallet,
-    });
-    console.log(adapter);
-
     // Create an instance of ColonyNetworkClient using the adapter
-    const networkClient = new ColonyNetworkClient({ adapter });
-    console.log(networkClient);
+    this.state.networkClient[0] = await connectNetwork(0);
+    console.log(this.state.networkClient[0]);
+    this.model.accountAddr = this.state.networkClient[0]._contract.address;
+    this.model.networkAddr = this.state.networkClient[0]._contract.signer.address;
 
-    // Initialize the client
-    await networkClient.init();
+    // Create ERC20 token
+    this.state.tokenAddress = await createToken(
+      this.state.networkClient[0],         // networkClient
+      'Token',                        // name
+      'TKN',                          // symbol
+    );
+    this.model.tokenAddr = this.state.tokenAddress;
 
-    // Congrats, you've connected to the network!
-    this.model.networkAddr = networkClient.contract.address;
+    // Create a colony using the token address of the ERC20 token
+    this.state.colony = await createColony(
+      this.state.networkClient[0],         // networkClient
+      this.state.tokenAddress,             // tokenAddress
+    );
+    this.model.colonyAddr = this.state.colony.address;
+    this.model.colonyId = this.state.colony.id;
 
-    // Create an ERC20 token (you could also skip this step and use a pre-existing token)
-    const { meta: { receipt: { contractAddress } } } = await networkClient.createToken.send({
-      name: 'Token',
-      symbol: 'TKN',
-    });
+    // Get an initialized ColonyClient for the colony
+    this.state.colonyClient[0] = await getColonyClient(
+      this.state.networkClient[0],         // networkClient
+      this.state.colony.id,                // colonyId
+    );
 
-    // Congrats, you've created an ERC20 token!
-    this.model.tokenAddr = contractAddress;
-
-    // Create a colony using the token address of the ERC20 token we created
-    const { eventData: { colonyId, colonyAddress } } = await networkClient.createColony.send({
-      tokenAddress: contractAddress,
-    });
-
-    // Congrats, you've created a colony!
-    this.model.colonyId = colonyId;
-    this.model.colonyAddr = colonyAddress;
-
-    // Get an initialized ColonyClient for the colony we just created
-    this.colonyClient = await networkClient.getColonyClient(colonyId);
-    console.log(this.colonyClient);
-
-    const admin = await this.colonyClient.setAdminRole.send({ user: this.accounts[1] });
-    console.log(admin);
-
-    // Initialise the Extended Colony Protocol
-    // await ecp.init();
-
-    // const specification = {title: 'Something cooler', description: 'Awesome deeds'};
-    // const specificationHash = await ecp.saveHash(specification);
-    // this.model.specHash = specificationHash;
-
-    // const createTask = await colonyClient.createTask.send({
-    //   specificationHash,
-    //   colonyId
-    // });
-    // console.log(createTask);
-
-    // const getTask = await colonyClient.getTask.call({ taskId: 1 });
-    // console.log(getTask);
-
-    const getTokenInfo = await this.colonyClient.token.getTokenInfo.call();
-    console.log(getTokenInfo);
-
+    this.state.domain = await addDomain(
+      this.state.colonyClient[0],          // colonyClient
+      1,                              // parentDomainId
+    );
+    this.model.domainId = this.state.domain.id;
   }
 
   setTaskTitle(e) {
@@ -156,24 +131,20 @@ export class AppComponent implements OnInit {
   async createTask() {
     this.setStatus('Initiating transaction... (please wait)');
     try {
-      // Initialise the Extended Colony Protocol
-      await ecp.init();
-      const colonyId = this.model.colonyId;
-      const specification = {title: this.task.title, description: this.task.description};
-
-      const specificationHash = await ecp.saveHash(specification);
-      this.task.specHash = specificationHash;
-
-      const createTask = await this.colonyClient.createTask.send({
-        specificationHash,
-        colonyId
-      });
-
-      if (!createTask.successful) {
+      this.state.task = await createTask(
+        this.state.colonyClient[0],          // colonyClient
+        this.state.domain.id,                // domainId
+        {
+          title: this.task.title,                  // title
+          description: this.task.description,      // description
+        },
+      );
+      if (!this.state.task) {
         this.setStatus('Transaction failed!');
       } else {
         this.setStatus('Transaction complete!');
-        console.log(createTask);
+        this.task.specHash = this.state.task.specificationHash;
+        this.task.id = this.state.task.id;
       }
     } catch (e) {
       console.log(e);
@@ -182,7 +153,7 @@ export class AppComponent implements OnInit {
   }
 
   async getTask() {
-    const getTask = await this.colonyClient.getTask.call({ taskId: Number(this.task.id) });
+    const getTask = await this.state.colonyClient[0].getTask.call({ taskId: Number(this.task.id) });
     this.task.getTaskSpecHash = getTask.specificationHash;
     console.log(getTask);
   }
