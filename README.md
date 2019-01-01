@@ -6,20 +6,22 @@ The goal of this repo is to create a Truffle Box that is a starter Colony dApp r
 * Yarn 1.12.3
 * Docker
 * Node 10.12.0
+* Angular CLI
 
 ## Get started
 
 1. Clone repo: `git clone https://github.com/fuguefoundation/ng-colony.git`
 2. `cd ng-colony`
-3. `npm install`
+3. `yarn`
 4. Open a new terminal window and start Ganache to spin up a dev network:
 `npm run start-ganache`
 5. Open a new terminal window and deploy the colonyNetwork contracts:
 `npm run deploy-contracts`
+* Make sure Docker is installed and running. If you encounter an error, try `docker pull ethereum/solc:0.4.23`
 6. Open a new terminal window and start TrufflePig:
 `npm run start-trufflepig`
 * *For more info about steps 4-6, see [Colony Starter: Basic](https://github.com/JoinColony/colonyStarter/tree/master/packages/colony-starter-basic)*
-7. Until resolved, there are a few changes you will need to make to some js files inside `node_modules`. For each one I've created a[separate issue](https://github.com/fuguefoundation/ng-colony/issues), just comment out the lines specified or better yet, help me fix them!
+7. Until resolved, there are three changes you will need to make to some js files inside `node_modules`. For each one I've created a [separate issue](https://github.com/fuguefoundation/ng-colony/issues), just comment out the lines specified or better yet, help me fix them!
 8. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## The code
