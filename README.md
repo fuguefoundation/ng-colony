@@ -26,7 +26,7 @@ The goal of this repo is to create a Truffle Box that is a starter Colony dApp r
 
 ## The code
 
-`app.component.ts` is based on the sample code from [colonyjs get started docs](https://docs.colony.io/colonyjs/docs-get-started/). I've incorporated Angular Material for some presentation and interaction, open the console to see more data.
+`app.component.ts` is based on the sample code from [colonyjs get started docs](https://docs.colony.io/colonyjs/docs-get-started/). I've incorporated Angular Material for some presentation and interaction, open the console to see more data. Colony offers a lot more functionality and capabilities, so start digging into the docs and white paper!
 
 ## Testing
 
@@ -52,7 +52,6 @@ See [Issues](https://github.com/fuguefoundation/ng-colony/issues) for bugs I hav
 * [Colony Network Docs](https://docs.colony.io/colonynetwork/docs-get-started/)
 * [Ganache](https://github.com/trufflesuite/ganache-cli)
 * [Truffle Pig](https://github.com/JoinColony/trufflepig)
-* [Angular Box](https://truffleframework.com/boxes/angular-truffle-box)
 * [Angular CLI](https://github.com/angular/angular-cli)
 
 ## Notes
