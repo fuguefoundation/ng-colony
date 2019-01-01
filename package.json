@@ -6,12 +6,17 @@
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
+    "colony-test": "jest",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "initialize": "sh scripts/initialize_project.sh",
     "start-ganache": "ganache-cli -d --gasLimit 7000000 --acctKeys ganache-accounts.json --noVMErrorsOnRPCResponse",
     "deploy-contracts": "./node_modules/.bin/truffle migrate --compile-all --reset",
     "start-trufflepig": "trufflepig --ganacheKeyFile ganache-accounts.json"
+  },
+  "jest": {
+    "rootDir": "src",
+    "testURL": "http://localhost"
   },
   "private": true,
   "dependencies": {

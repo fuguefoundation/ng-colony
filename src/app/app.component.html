@@ -1,36 +1,48 @@
 <mat-toolbar color="primary">
-  <span>Ng-Colony</span>
+  <span>NgColony</span>
 </mat-toolbar>
 
-<h2>Network Address: {{model.networkAddr}}</h2>
-<h2>Token Address: {{model.tokenAddr}}</h2>
-<h2>Colony ID: {{model.colonyId}}</h2>
-<h2>Colony Address: {{model.colonyAddr}}</h2>
+<div class="row">
+  <div class="col-6">
+    <h4>Network Address: {{model.networkAddr}}</h4>
+    <h4>Token Address: {{model.tokenAddr}}</h4>
+    <h4>Colony ID: {{model.colonyId}}</h4>
+    <h4>Colony Address: {{model.colonyAddr}}</h4>
+  </div>
 
-<form>
-  <mat-card>
-    <mat-card-header>Create Task</mat-card-header>
-    <mat-card-subtitle>Specification Hash: {{this.task.specHash}}</mat-card-subtitle>
-    <mat-card-content>
-      <mat-form-field>
-        <input matInput placeholder="Task Title" (change)="setTaskTitle($event)">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="Task Description" (change)="setTaskDesc($event)">
-      </mat-form-field>
-      <button mat-button type="button" color="primary" (click)="createTask()">Set</button>
-    </mat-card-content>
-  </mat-card>
-</form>
+  <div class="col-6">
+    <form>
+      <mat-card>
+        <mat-card-header>Create Task</mat-card-header>
+        <mat-card-subtitle>Specification Hash: {{task.specHash}}</mat-card-subtitle>
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput placeholder="Task Title" (change)="setTaskTitle($event)">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Task Description" (change)="setTaskDesc($event)">
+          </mat-form-field>
+          <button mat-button type="button" color="primary" (click)="createTask()">Set</button>
+        </mat-card-content>
+      </mat-card>
+    </form>
+    
+    <form>
+      <mat-card>
+        <mat-card-header>Get Task</mat-card-header>
+        <mat-card-subtitle>Specification Hash: {{task.getTaskSpecHash}}</mat-card-subtitle>
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput placeholder="Task ID" (change)="setTaskID($event)">
+          </mat-form-field>
+          <button mat-button type="button" color="primary" (click)="getTask()">Get</button>
+        </mat-card-content>
+      </mat-card>
+    </form> 
+  </div>
+</div>
+   
 
-<form>
-  <mat-card>
-    <mat-card-header>Get Task</mat-card-header>
-    <mat-card-content>
-      <mat-form-field>
-        <input matInput placeholder="Task ID" (change)="setTaskID($event)">
-      </mat-form-field>
-      <button mat-button type="button" color="primary" (click)="getTask()">Get</button>
-    </mat-card-content>
-  </mat-card>
-</form>
+
+
+

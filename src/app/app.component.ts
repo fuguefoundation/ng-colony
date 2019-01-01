@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { providers, Wallet } from 'ethers';
 import { TrufflepigLoader } from '@colony/colony-js-contract-loader-http';
+import { MatSnackBar } from '@angular/material';
 
 // import { EthersAdapter } from '@colony/colony-js-adapter-ethers';
 // import { ColonyNetworkClient } from '@colony/colony-js-client';
@@ -33,7 +34,8 @@ export class AppComponent implements OnInit {
     title: '',
     description: '',
     id: '',
-    specHash: ''
+    specHash: '',
+    getTaskSpecHash: ''
   };
 
   // Test accounts
@@ -43,7 +45,7 @@ export class AppComponent implements OnInit {
     '0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b'
   ];
 
-  constructor() {
+  constructor(private matSnackBar: MatSnackBar) {
 
   }
 
@@ -51,6 +53,10 @@ export class AppComponent implements OnInit {
     this.example()
       .then((res) => console.log(res))
       .catch(error => console.error(error));
+  }
+
+  setStatus(status) {
+    this.matSnackBar.open(status, null, {duration: 3000});
   }
 
   // Create an async function
@@ -148,23 +154,36 @@ export class AppComponent implements OnInit {
   }
 
   async createTask() {
-    // Initialise the Extended Colony Protocol
-    await ecp.init();
-    const colonyId = this.model.colonyId;
-    const specification = {title: this.task.title, description: this.task.description};
+    this.setStatus('Initiating transaction... (please wait)');
+    try {
+      // Initialise the Extended Colony Protocol
+      await ecp.init();
+      const colonyId = this.model.colonyId;
+      const specification = {title: this.task.title, description: this.task.description};
 
-    const specificationHash = await ecp.saveHash(specification);
-    this.task.specHash = specificationHash;
+      const specificationHash = await ecp.saveHash(specification);
+      this.task.specHash = specificationHash;
 
-    const createTask = await this.colonyClient.createTask.send({
-      specificationHash,
-      colonyId
-    });
-    console.log(createTask);
+      const createTask = await this.colonyClient.createTask.send({
+        specificationHash,
+        colonyId
+      });
+
+      if (!createTask.successful) {
+        this.setStatus('Transaction failed!');
+      } else {
+        this.setStatus('Transaction complete!');
+        console.log(createTask);
+      }
+    } catch (e) {
+      console.log(e);
+      this.setStatus('Error making proposal; see log.');
+    }
   }
 
   async getTask() {
     const getTask = await this.colonyClient.getTask.call({ taskId: Number(this.task.id) });
+    this.task.getTaskSpecHash = getTask.specificationHash;
     console.log(getTask);
   }
 }
