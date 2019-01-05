@@ -31,7 +31,7 @@ The goal of this repo is to create a Truffle Box that is a starter Colony dApp r
 ## Testing
 
 * Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-* Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+* Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/). Make sure you are serving the app via `ng serve`.
 * Colony tests using Jest - `npm run colony-test`
 
 ## TODO
